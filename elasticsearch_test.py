@@ -13,14 +13,40 @@ def create_idx(es: Elasticsearch):
         "mappings": {
             "properties": {
                 'id': {"type": "text"},
-                'source': {"type": "text", "index": "not_analyzed"},
-                'brand': {"type": "text", "index": "not_analyzed"},
-                'type': {"type": "text", "index": "not_analyzed"},
+                'source': {
+                    "type": "text",
+                    "fields": {
+                        "keyword": {"type": "keyword"}
+                    }
+                },
+                'brand': {"type": "text",
+                          "fields": {
+                              "keyword": {"type": "keyword"}
+                          }
+                          },
+                'type': {"type": "text",
+                         "fields": {
+                             "keyword": {"type": "keyword"}
+                         }
+                         },
                 'link': {"type": "text"},
                 'cc': {"type": "float"},
-                'gas': {"type": "text", "index": "not_analyzed"},
-                'sys': {"type": "text", "index": "not_analyzed"},
-                'color': {"type": "text", "index": "not_analyzed"},
+                'gas': {
+                    "type": "text",
+                    "fields": {
+                        "keyword": {"type": "keyword"}
+                    }
+                },
+                'sys': {"type": "text",
+                        "fields": {
+                            "keyword": {"type": "keyword"}
+                        }
+                        },
+                'color': {"type": "text",
+                          "fields": {
+                              "keyword": {"type": "keyword"}
+                          }
+                          },
                 'miles': {"type": "float"},
                 'year': {"type": "date"},
                 'price': {"type": "float"},
@@ -113,7 +139,7 @@ def get_lat_lng(location: str) -> dict:
         ################################################
         res = requests.get(url=query_url, params=params)
         if res.status_code == 200:
-            print("request : ", res.url)
+            # print("request : ", res.url)
             loc = res.json()
             location_dict[location] = loc
             save_location()
@@ -121,12 +147,17 @@ def get_lat_lng(location: str) -> dict:
 
 
 def main():
-    es = Elasticsearch(hosts=["localhost:9200"])
+    es = Elasticsearch(hosts=["kvsr.ddns.net:19200"])
     load_location()
     create_idx(es)
     car_data(es)
-    # print( get_lat_lng("臺中市")["results"][0]["geometry"]['location'] )
+    # # print( get_lat_lng("臺中市")["results"][0]["geometry"]['location'] )
     save_location()
+
+    # with open("./usedcar4.json", "r", encoding="utf-8") as file:
+    #     for line in file.readlines():
+    #         print(json.dumps(json.loads(line), indent=4, ensure_ascii=False))
+    #         break
     # print(datetime.datetime.strptime("2011.0".split(".")[0], "%Y"))
     # print("2011.0".strip("."))
     # es.indices.create(index="car", ignore=400)  # 建立index
